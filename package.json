@@ -1,0 +1,39 @@
+{
+  "name": "create-vitriol",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Create Mithril + Vite projects",
+  "bin": {
+    "create-vitriol": "index.js"
+  },
+  "files": [
+    "index.js",
+    "template*",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DeJy/vitriol.git"
+  },
+  "keywords": [
+    "Mithril",
+    "Vite",
+    "Vitriol"
+  ],
+  "author": "DeJy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DeJy/vitriol/issues"
+  },
+  "homepage": "https://github.com/DeJy/vitriol#readme",
+  "devDependencies": {
+    "kolorist": "^1.8.0",
+    "minimist": "^1.2.8",
+    "prompts": "^2.4.2",
+    "unbuild": "^2.0.0"
+  }
+}
