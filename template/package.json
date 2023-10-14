@@ -1,6 +1,6 @@
 {
   "name": "vitriol",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Vite and Mithril template",
   "main": "main.js",
   "scripts": {
@@ -13,8 +13,6 @@
     "Vite.js",
     "Mithril.js"
   ],
-  "author": "DeJy",
-  "license": "ISC",
   "devDependencies": {
     "mithril-query": "^4.0.1",
     "vite": "^4.4.11",
