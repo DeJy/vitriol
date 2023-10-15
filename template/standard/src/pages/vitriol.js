@@ -20,7 +20,7 @@ export default function Vitriol() {
             ]),
           ]),
           m("div", {class:"card"}, [
-            m("p", "The page Id is " + attrs.id)
+            m("p", "The page ID is " + attrs.id)
           ]),
           m("p", {onclick: () => m.route.set('/home'), class:style.footer + " clickable"}, "Home Page")
         ])
