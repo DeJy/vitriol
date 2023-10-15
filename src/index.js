@@ -7,10 +7,23 @@ import { red, reset } from 'kolorist'
 
 const argv = minimist(process.argv.slice(2))
 const defaultTargetDir = 'vitriol-project'
+const defaultProjectType = 'standard'
 const cwd = process.cwd()
 
 const renameFiles = {
   _gitignore: '.gitignore',
+}
+
+function parseArg() {
+  let argOut = {};
+  if (argv._[0]?.toLowerCase() == 'standard' || argv._[0]?.toLowerCase() == 'jsx') {
+    argOut.projectType = argv._[0].toLowerCase();
+    argOut.targetDir = argv._[1];
+  } else {
+    argOut.projectType = argv._[1]?.toLowerCase() == 'standard' || argv._[1]?.toLowerCase() == 'jsx' ? argv._[1].toLowerCase() : null
+    argOut.targetDir = argv._[0];
+  }
+  return argOut;
 }
 
 function formatTargetDir(targetDir) {
@@ -78,8 +91,12 @@ function pkgFromUserAgent(userAgent) {
 }
 
 async function init() {
-  const argTargetDir = formatTargetDir(argv._[0])
+  const argOut = parseArg();
+
+  const argTargetDir = formatTargetDir(argOut.targetDir)
   let targetDir = argTargetDir || defaultTargetDir
+
+  let projectType = argOut.projectType || defaultProjectType
 
   const getProjectName = () =>
     targetDir === '.' ? path.basename(path.resolve()) : targetDir
@@ -88,43 +105,60 @@ async function init() {
   try {
 
     result = await prompts(
-      [
-        {
-          type: argTargetDir ? null : 'text',
-          name: 'projectName',
-          message: reset('Project name:'),
-          initial: defaultTargetDir,
-          onState: (state) => {
-            targetDir = formatTargetDir(state.value) || defaultTargetDir
-          },
+      [{
+        type: argOut.projectType ? null : 'text',
+        name: 'projectType',
+        message: reset('Project type (standard or jsx):'),
+        initial: defaultProjectType,
+        onState: (state) => {
+          projectType = state.value || defaultProjectType
         },
-        {
-          type: () =>
-            !fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm',
-          name: 'overwrite',
-          message: () =>
-            (targetDir === '.'
-              ? 'Current directory'
-              : `Target directory "${targetDir}"`) +
-            ` is not empty. Remove existing files and continue?`,
+      },
+      {
+        type: () => {
+          if ( projectType?.toLowerCase() != 'standard' && projectType?.toLowerCase() != 'jsx' ) {
+            throw new Error(red('✖') + ' Invalid project type, Operation cancelled')
+          }
+          return null
         },
-        {
-          type: (_, { overwrite }) => {
-            if (overwrite === false) {
-              throw new Error(red('✖') + ' Operation cancelled')
-            }
-            return null
-          },
-          name: 'overwriteChecker',
+        name: 'projectTypeChecker',
+      },
+      {
+        type: argTargetDir ? null : 'text',
+        name: 'projectName',
+        message: reset('Project name:'),
+        initial: defaultTargetDir,
+        onState: (state) => {
+          targetDir = formatTargetDir(state.value) || defaultTargetDir
         },
-        {
-          type: () => (isValidPackageName(getProjectName()) ? null : 'text'),
-          name: 'packageName',
-          message: reset('Package name:'),
-          initial: () => toValidPackageName(getProjectName()),
-          validate: (dir) =>
-            isValidPackageName(dir) || 'Invalid package.json name',
-        }
+      },
+      {
+        type: () =>
+          !fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm',
+        name: 'overwrite',
+        message: () =>
+          (targetDir === '.'
+            ? 'Current directory'
+            : `Target directory "${targetDir}"`) +
+          ` is not empty. Remove existing files and continue?`,
+      },
+      {
+        type: (_, { overwrite }) => {
+          if (overwrite === false) {
+            throw new Error(red('✖') + ' Operation cancelled')
+          }
+          return null
+        },
+        name: 'overwriteChecker',
+      },
+      {
+        type: () => (isValidPackageName(getProjectName()) ? null : 'text'),
+        name: 'packageName',
+        message: reset('Package name:'),
+        initial: () => toValidPackageName(getProjectName()),
+        validate: (dir) =>
+          isValidPackageName(dir) || 'Invalid package.json name',
+      }
       ],
       {
         onCancel: () => {
@@ -147,12 +181,12 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
   }
 
-  console.log(`\nScaffolding project in ${root}...`)
+  console.log(`\nScaffolding ${projectType} Vitriol project in ${root}...`)
 
   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
     '../..',
-    `template`,
+    `template/${projectType}`,
   )
 
   const write = (file, content) => {

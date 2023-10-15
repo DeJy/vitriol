@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Vite and Mithril template",
+  "description": "Vite and Mithril jsx template",
   "main": "main.js",
   "scripts": {
     "test": "vitest",
