@@ -6,7 +6,7 @@ import prompts from 'prompts'
 import { red, reset } from 'kolorist'
 
 const argv = minimist(process.argv.slice(2), { boolean: true })
-console.log(argv);
+console.log(argv)
 const defaultIsIonic = false;
 const defaultTargetDir = 'vitriol-project'
 const defaultProjectType = 'standard'

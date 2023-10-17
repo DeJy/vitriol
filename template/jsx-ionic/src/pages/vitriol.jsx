@@ -1,6 +1,6 @@
 import style from "../css/vitriol.module.css";
 import mithrilLogo from '../assets/mithril.svg'
-import viteLogo from '../assets/vite.svg'
+import viteLogo from '/vite.svg'
 import ionicLogo from '/ionic.svg'
 import { PageHeader } from "../components/header"
 export const attrs = ['id']
