@@ -1,5 +1,7 @@
 ## Scaffolding Mithril.js + Vite project
 
+Ionic Framework can now be included
+
 With NPM:
 
 ```bash
