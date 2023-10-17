@@ -5,7 +5,9 @@ import minimist from 'minimist'
 import prompts from 'prompts'
 import { red, reset } from 'kolorist'
 
-const argv = minimist(process.argv.slice(2))
+const argv = minimist(process.argv.slice(2), { boolean: true })
+console.log(argv);
+const defaultIsIonic = false;
 const defaultTargetDir = 'vitriol-project'
 const defaultProjectType = 'standard'
 const cwd = process.cwd()
@@ -15,7 +17,10 @@ const renameFiles = {
 }
 
 function parseArg() {
-  let argOut = {};
+  let argOut = {}
+  if (argv.i || argv.ionic) {
+    argOut.isIonic = true
+  }
   if (argv._[0]?.toLowerCase() == 'standard' || argv._[0]?.toLowerCase() == 'jsx') {
     argOut.projectType = argv._[0].toLowerCase();
     argOut.targetDir = argv._[1];
@@ -116,7 +121,7 @@ async function init() {
       },
       {
         type: () => {
-          if ( projectType?.toLowerCase() != 'standard' && projectType?.toLowerCase() != 'jsx' ) {
+          if (projectType?.toLowerCase() != 'standard' && projectType?.toLowerCase() != 'jsx') {
             throw new Error(red('✖') + ' Invalid project type, Operation cancelled')
           }
           return null
@@ -131,6 +136,14 @@ async function init() {
         onState: (state) => {
           targetDir = formatTargetDir(state.value) || defaultTargetDir
         },
+      },
+      {
+        type: () =>
+          argOut.isIonic ? null : 'confirm',
+        name: 'isIonic',
+        initial: defaultIsIonic,
+        message: () =>
+          `Do you want to include Ionic Framework?`,
       },
       {
         type: () =>
@@ -171,7 +184,9 @@ async function init() {
     return
   }
 
-  const { overwrite, packageName } = result
+  const { overwrite, packageName, isIonic } = result
+
+  const installIonic = argOut.isIonic || isIonic;
 
   const root = path.join(cwd, targetDir)
 
@@ -181,12 +196,12 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
   }
 
-  console.log(`\nScaffolding ${projectType} Vitriol project in ${root}...`)
+  console.log(`\nScaffolding ${projectType} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}in ${root}...`)
 
   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
     '../..',
-    `template/${projectType}`,
+    `template/${projectType}${installIonic ? '-ionic' : ''}`,
   )
 
   const write = (file, content) => {
