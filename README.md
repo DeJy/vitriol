@@ -28,4 +28,5 @@ $ bunx create-vitriol
 
 Then follow the prompts!
 
+Tutorial can be found [here](https://dev.to/dejy/vitriol-mithrilvite-3ba1)
 
