@@ -1,5 +1,4 @@
 
-import "@ionic/core/css/ionic.bundle.css";
 export function PageHeader() {
   return {
     view: ({ attrs }) => {
