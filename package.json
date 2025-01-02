@@ -1,6 +1,6 @@
 {
   "name": "create-vitriol",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "description": "Create Mithril + Vite projects",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "files": [
     "index.js",
-    "template*",
+    "template",
     "dist"
   ],
   "scripts": {
