@@ -7,6 +7,9 @@ export default defineConfig({
   test: {
     setupFiles: ['/test/setup.js']
   },
+  server: {
+    host: true
+  },
   plugins: [
     dynamicImport({
       filter(id) {
