@@ -8,6 +8,7 @@ import { red, reset } from 'kolorist'
 const argv = minimist(process.argv.slice(2), { boolean: true })
 
 const defaultIsIonic = false;
+const defaultIsDevContainer = false;
 const defaultTargetDir = 'vitriol-project'
 const defaultProjectType = 'standard'
 const cwd = process.cwd()
@@ -20,6 +21,9 @@ function parseArg() {
   let argOut = {}
   if (argv.i || argv.ionic) {
     argOut.isIonic = true
+  }
+  if (argv.dc || argv.devcontainer) {
+    argOut.isDevContainer = true
   }
   if (argv._[0]?.toLowerCase() == 'standard' || argv._[0]?.toLowerCase() == 'jsx') {
     argOut.projectType = argv._[0].toLowerCase();
@@ -147,6 +151,14 @@ async function init() {
       },
       {
         type: () =>
+          argOut.isDevContainer ? null : 'confirm',
+        name: 'isDevContainer',
+        initial: defaultIsDevContainer,
+        message: () =>
+          `Do you want to include devcontainer.json configuration?`,
+      },
+      {
+        type: () =>
           !fs.existsSync(targetDir) || isEmpty(targetDir) ? null : 'confirm',
         name: 'overwrite',
         message: () =>
@@ -184,9 +196,11 @@ async function init() {
     return
   }
 
-  const { overwrite, packageName, isIonic } = result
+  const { overwrite, packageName, isIonic, isDevContainer } = result
 
   const installIonic = argOut.isIonic || isIonic;
+
+  const copyDevContainer = argOut.isDevContainer || isDevContainer;
 
   const root = path.join(cwd, targetDir)
 
@@ -226,6 +240,17 @@ async function init() {
   write('package.json', JSON.stringify(pkg, null, 2) + '\n')
 
   const cdProjectName = path.relative(cwd, root)
+ 
+  if (copyDevContainer) {
+    copy(path.resolve(fileURLToPath(import.meta.url), '../../template/.devcontainer'), path.join(root, '.devcontainer'))
+    const dcFile = JSON.parse(
+      fs.readFileSync(path.join(root, '.devcontainer/devcontainer.json'), 'utf-8'),
+    )
+    console.log(dcFile)
+    dcFile.name = packageName || getProjectName()
+    write('.devcontainer/devcontainer.json', JSON.stringify(dcFile, null, 2) + '\n')
+  }
+
   console.log(`\nDone. Now run:\n`)
   if (root !== cwd) {
     console.log(
