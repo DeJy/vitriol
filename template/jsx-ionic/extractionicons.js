@@ -6,7 +6,10 @@ import fs from 'fs';
 import path from 'path';
 
 const SRC_DIR = './src';
-const REGEX = /<ion-icon\s+[^>]*name=["']([\w-]+)["']/g;
+
+const jsxRegex = /<ion-icon\s+[^>]*name=["']([\w-]+)["']/g;
+const mithrilRegex = /m\(\s*["']ion-icon["']\s*,\s*{[^}]*name\s*:\s*["']([\w-]+)["']/g;
+
 const usedIcons = [];
 
 function scanDirectory(dir) {
@@ -16,10 +19,14 @@ function scanDirectory(dir) {
 
     if (stat.isDirectory()) {
       scanDirectory(fullPath);
-    } else if (file.endsWith('.js') || file.endsWith('.ts') || file.endsWith('.html') || file.endsWith('.jsx') || file.endsWith('.tsx')) {
+   } else if (/\.(js|ts|jsx|tsx|html)$/.test(file)) {
       const content = fs.readFileSync(fullPath, 'utf-8');
+
       let match;
-      while ((match = REGEX.exec(content)) !== null) {
+       while ((match = jsxRegex.exec(content)) !== null) {
+        usedIcons.push(match[1]);
+      }
+      while ((match = mithrilRegex.exec(content)) !== null) {
         usedIcons.push(match[1]);
       }
     }

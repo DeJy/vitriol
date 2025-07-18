@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import ioniconList from './extractionicons.js';
 
 export default defineConfig({
 
