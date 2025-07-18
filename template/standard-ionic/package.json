@@ -19,7 +19,6 @@
   "devDependencies": {
     "mithril-query": "^4.0.1",
     "vite": "^6.0.6",
-    "vite-plugin-dynamic-import": "^1.6.0",
     "vite-plugin-static-copy": "^2.2.0",
     "vitest": "^2.1.8"
   },

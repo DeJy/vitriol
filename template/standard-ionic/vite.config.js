@@ -1,30 +1,25 @@
 import { defineConfig } from 'vite';
-import dynamicImport from 'vite-plugin-dynamic-import'
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
-  
+
   test: {
     setupFiles: ['/test/setup.js']
   },
   server: {
     host: true
   },
+  optimizeDeps: {
+    exclude: [
+      '@ionic/core'
+    ]
+  },
+  build: {
+    emptyOutDir: true,
+  },
   plugins: [
-    dynamicImport({
-      filter(id) {
-        if (id.includes('node_modules/@ionic/core/')) {
-          return true
-        }
-      }
-    }),
     viteStaticCopy({
-      targets: [
-        {
-          src: 'node_modules/@ionic/core/dist/ionic/svg',
-          dest: './'
-        }
-      ]
+      targets: ioniconList('node_modules/@ionic/core/dist/ionic/svg', './svg')
     })
   ]
 })
