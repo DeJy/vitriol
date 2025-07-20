@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DeJy/vitriol.git"
+    "url": "https://github.com/DeJy/vitriol.git"
   },
   "keywords": [
     "Mithril",
