@@ -20,6 +20,11 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        chunkFileNames: 'assets/[name].js',
+      }
+    }
   },
   plugins: [
     viteStaticCopy({
