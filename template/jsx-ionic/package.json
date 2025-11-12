@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "mithril": "2.3.3",
-    "@ionic/core": "8.6.4"
+    "@ionic/core": "8.7.9"
   }
 }

@@ -10,6 +10,16 @@ import "@ionic/core/css/ionic.bundle.css";
 import { initialize } from "@ionic/core/components";
 import { defineCustomElements } from "@ionic/core/loader";
 
+// Preload all Ionic components (this is what makes it work in production)
+const ionicComponents = import.meta.glob('../node_modules/@ionic/core/dist/esm/*.entry.js');
+for (const path in ionicComponents) {
+  ionicComponents[path]().then(() => {
+    // Component loaded
+  }).catch(err => {
+    console.warn(`Failed to load ${path}:`, err);
+  });
+}
+
 // Import main css file
 import "./css/main.css";
 
