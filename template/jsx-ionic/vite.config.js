@@ -13,11 +13,6 @@ export default defineConfig({
   server: {
     host: true
   },
-  optimizeDeps: {
-    exclude: [
-      '@ionic/core'
-    ]
-  },
   build: {
     emptyOutDir: true,
     rollupOptions: {
