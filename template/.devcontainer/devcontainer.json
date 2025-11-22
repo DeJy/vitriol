@@ -1,0 +1,6 @@
+{
+	"name": "MyNewVitriolProject",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+	"postCreateCommand": "npm i",
+	"remoteUser": "root"
+}

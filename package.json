@@ -1,0 +1,52 @@
+{
+  "name": "create-vitriol",
+  "version": "0.9.6",
+  "type": "module",
+  "description": "Create Mithril + Vite projects",
+  "bin": {
+    "create-vitriol": "index.js"
+  },
+  "files": [
+    "index.js",
+    "template",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "test": "vitest run './tests/index.test.js'",
+    "integration": "vitest run './tests/integration.test.js'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DeJy/vitriol.git"
+  },
+  "keywords": [
+    "Mithril",
+    "Vite",
+    "Vitriol",
+    "scaffolding",
+    "generator",
+    "starter",
+    "boilerplate",
+    "cli",
+    "ionic",
+    "typescript",
+    "jsx",
+    "create-mithril-app"
+  ],
+  "author": "DeJy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DeJy/vitriol/issues"
+  },
+  "homepage": "https://github.com/DeJy/vitriol#readme",
+  "devDependencies": {
+    "vite": "^6.0.6",
+    "vitest": "^2.1.8",
+    "kolorist": "^1.8.0",
+    "minimist": "^1.2.8",
+    "prompts": "^2.4.2",
+    "unbuild": "^3.2.0"
+  }
+}
