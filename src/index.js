@@ -32,15 +32,11 @@ const defaultIsIonic = false;
 const defaultIsDevContainer = false;
 const defaultTargetDir = 'vitriol-project'
 const defaultProjectType = 'standard'
+const defaultLanguage = 'javascript'
 const cwd = process.cwd()
 
 const renameFiles = {
   _gitignore: '.gitignore',
-}
-
-function normalizeProjectType(value) {
-  const normalized = value?.toString().trim().toLowerCase()
-  return normalized === 'standard' || normalized === 'jsx' ? normalized : null
 }
 
 function parseArg(argv) {
@@ -50,13 +46,13 @@ function parseArg(argv) {
   } else if (argv.ionic === false || argv['no-ionic'] === true) {
     argOut.isIonic = false
   }
-  
+
   if (argv.devcontainer === true) {
     argOut.isDevContainer = true
   } else if (argv.devcontainer === false || argv['no-devcontainer'] === true) {
     argOut.isDevContainer = false
   }
-  
+
   if (argv.typescript === true) {
     argOut.language = 'typescript'
   }
@@ -149,8 +145,6 @@ async function init() {
   const argTargetDir = formatTargetDir(argOut.targetDir)
   let targetDir = argTargetDir || defaultTargetDir
 
-  let projectType = normalizeProjectType(argOut.projectType) || defaultProjectType
-
   const getProjectName = () =>
     targetDir === '.' ? path.basename(path.resolve()) : targetDir
 
@@ -166,35 +160,6 @@ async function init() {
         onState: (state) => {
           targetDir = formatTargetDir(state.value) || defaultTargetDir
         },
-      },
-      {
-        type: argOut.projectType ? null : 'select',
-        name: 'projectType',
-        message: reset('Select a project type:'),
-        initial: 0,
-        choices: [
-          { title: 'Standard', value: 'standard' },
-          { title: 'JSX', value: 'jsx' },
-        ],
-        onState: (state) => {
-          projectType = normalizeProjectType(state.value) || defaultProjectType
-        },
-      },
-      {
-        type: () =>
-          argOut.isIonic !== undefined ? null : 'confirm',
-        name: 'isIonic',
-        initial: defaultIsIonic,
-        message: () =>
-          `Do you want to include Ionic Framework?`,
-      },
-      {
-        type: () =>
-          argOut.isDevContainer !== undefined ? null : 'confirm',
-        name: 'isDevContainer',
-        initial: defaultIsDevContainer,
-        message: () =>
-          `Do you want to include devcontainer.json configuration?`,
       },
       {
         type: () =>
@@ -224,13 +189,14 @@ async function init() {
           isValidPackageName(dir) || 'Invalid package.json name',
       },
       {
-        type: () => {
-          if (!normalizeProjectType(projectType)) {
-            throw new Error(red('✖') + ' Invalid project type, Operation cancelled')
-          }
-          return null
-        },
-        name: 'projectTypeChecker',
+        type: argOut.projectType ? null : 'select',
+        name: 'projectType',
+        message: reset('Select a project type:'),
+        initial: 0,
+        choices: [
+          { title: 'Standard', value: 'standard' },
+          { title: 'JSX', value: 'jsx' },
+        ],
       },
       {
         type: argOut.language ? null : 'select',
@@ -241,6 +207,22 @@ async function init() {
           { title: 'JavaScript', value: 'javascript' },
           { title: 'TypeScript', value: 'typescript' },
         ],
+      },
+      {
+        type: () =>
+          argOut.isIonic !== undefined ? null : 'confirm',
+        name: 'isIonic',
+        initial: defaultIsIonic,
+        message: () =>
+          `Do you want to include Ionic Framework?`,
+      },
+      {
+        type: () =>
+          argOut.isDevContainer !== undefined ? null : 'confirm',
+        name: 'isDevContainer',
+        initial: defaultIsDevContainer,
+        message: () =>
+          `Do you want to include devcontainer.json configuration?`,
       },
       ],
       {
@@ -254,9 +236,10 @@ async function init() {
     return
   }
 
-  const { overwrite, packageName, isIonic, isDevContainer, language: promptLanguage } = result
+  const { overwrite, packageName, isIonic, isDevContainer, language: promptLanguage, projectType: promptProjectType } = result
 
-  const language = argOut.language || promptLanguage
+  const language = argOut.language || promptLanguage || defaultLanguage
+  const projectType = argOut.projectType || promptProjectType || defaultProjectType
 
   const installIonic = argOut.isIonic !== undefined ? argOut.isIonic : isIonic;
 
@@ -270,9 +253,9 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
   }
 
-  console.log(`\nScaffolding ${projectType} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}in ${root}...`)
+  console.log(`\nScaffolding ${projectType} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}using ${language === 'typescript' ? 'TypeScript' : 'JavaScript'} in ${root}...`)
 
-  const templateDir = path.resolve(
+   const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
     '../..',
     `template/${getTemplateName({ projectType, isIonic: installIonic, language })}`,
@@ -300,7 +283,7 @@ async function init() {
   write('package.json', JSON.stringify(pkg, null, 2) + '\n')
 
   const cdProjectName = path.relative(cwd, root)
- 
+
   if (copyDevContainer) {
     copy(path.resolve(fileURLToPath(import.meta.url), '../../template/.devcontainer'), path.join(root, '.devcontainer'))
     const dcFile = JSON.parse(
@@ -334,11 +317,7 @@ async function init() {
   console.log()
 }
 
-
-
-
-
-export { normalizeProjectType, formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName, init }
+export { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName, init }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   init().catch((e) => {

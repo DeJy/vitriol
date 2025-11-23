@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import minimist from 'minimist'
-import { normalizeProjectType, formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName } from '../src/index.js'
+import { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName } from '../src/index.js'
 
 describe('parseArg', () => {
   it('should parse ionic flag', () => {
@@ -91,27 +91,6 @@ describe('parseArg', () => {
       isIonic: true,
       projectType: 'standard'
     })
-  })
-})
-
-describe('normalizeProjectType', () => {
-  it('should return "standard" for "standard"', () => {
-    expect(normalizeProjectType('standard')).toBe('standard')
-  })
-
-  it('should return "jsx" for "jsx"', () => {
-    expect(normalizeProjectType('jsx')).toBe('jsx')
-  })
-
-  it('should return null for invalid types', () => {
-    expect(normalizeProjectType('invalid')).toBe(null)
-    expect(normalizeProjectType('')).toBe(null)
-    expect(normalizeProjectType(null)).toBe(null)
-  })
-
-  it('should be case insensitive', () => {
-    expect(normalizeProjectType('Standard')).toBe('standard')
-    expect(normalizeProjectType('JSX')).toBe('jsx')
   })
 })
 
