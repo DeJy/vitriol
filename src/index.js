@@ -284,6 +284,20 @@ async function init() {
 
   const cdProjectName = path.relative(cwd, root)
 
+  // copy all file and folder from commun folder
+  const commonTemplateDir = path.resolve(
+    fileURLToPath(import.meta.url),
+    '../..',
+    `template/commun`,
+  )
+  if (fs.existsSync(commonTemplateDir)) {
+    const commonFiles = fs.readdirSync(commonTemplateDir)
+    for (const file of commonFiles) {
+      const targetPath = path.join(root, renameFiles[file] ?? file)
+      copy(path.join(commonTemplateDir, file), targetPath)
+    }
+  }
+  
   if (copyDevContainer) {
     copy(path.resolve(fileURLToPath(import.meta.url), '../../template/.devcontainer'), path.join(root, '.devcontainer'))
     const dcFile = JSON.parse(
