@@ -159,6 +159,15 @@ async function init() {
 
     result = await prompts(
       [{
+        type: argTargetDir ? null : 'text',
+        name: 'projectName',
+        message: reset('Project name:'),
+        initial: defaultTargetDir,
+        onState: (state) => {
+          targetDir = formatTargetDir(state.value) || defaultTargetDir
+        },
+      },
+      {
         type: argOut.projectType ? null : 'select',
         name: 'projectType',
         message: reset('Select a project type:'),
@@ -169,34 +178,6 @@ async function init() {
         ],
         onState: (state) => {
           projectType = normalizeProjectType(state.value) || defaultProjectType
-        },
-      },
-      {
-        type: () => {
-          if (!normalizeProjectType(projectType)) {
-            throw new Error(red('✖') + ' Invalid project type, Operation cancelled')
-          }
-          return null
-        },
-        name: 'projectTypeChecker',
-      },
-      {
-        type: argOut.language ? null : 'select',
-        name: 'language',
-        message: reset('Select a language:'),
-        initial: 0,
-        choices: [
-          { title: 'JavaScript', value: 'javascript' },
-          { title: 'TypeScript', value: 'typescript' },
-        ],
-      },
-      {
-        type: argTargetDir ? null : 'text',
-        name: 'projectName',
-        message: reset('Project name:'),
-        initial: defaultTargetDir,
-        onState: (state) => {
-          targetDir = formatTargetDir(state.value) || defaultTargetDir
         },
       },
       {
@@ -241,7 +222,26 @@ async function init() {
         initial: () => toValidPackageName(getProjectName()),
         validate: (dir) =>
           isValidPackageName(dir) || 'Invalid package.json name',
-      }
+      },
+      {
+        type: () => {
+          if (!normalizeProjectType(projectType)) {
+            throw new Error(red('✖') + ' Invalid project type, Operation cancelled')
+          }
+          return null
+        },
+        name: 'projectTypeChecker',
+      },
+      {
+        type: argOut.language ? null : 'select',
+        name: 'language',
+        message: reset('Select a language:'),
+        initial: 0,
+        choices: [
+          { title: 'JavaScript', value: 'javascript' },
+          { title: 'TypeScript', value: 'typescript' },
+        ],
+      },
       ],
       {
         onCancel: () => {
@@ -338,7 +338,7 @@ async function init() {
 
 
 
-export { normalizeProjectType, formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName }
+export { normalizeProjectType, formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName, init }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   init().catch((e) => {
