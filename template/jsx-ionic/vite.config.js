@@ -7,23 +7,32 @@ export default defineConfig({
     jsxFactory: 'm',
     jsxFragment: "'['"
   },
-  test: {
-    setupFiles: ['/test/setup.js']
-  },
   server: {
     host: true
+  },
+  optimizeDeps: {
+    exclude: ['@ionic/core'],
   },
   build: {
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        chunkFileNames: 'assets/[name].js',
-      }
-    }
+        manualChunks: undefined,
+      },
+      external: ['/ionic.esm.js'],
+    },
   },
   plugins: [
     viteStaticCopy({
       targets: ioniconList('node_modules/@ionic/core/dist/ionic/svg', './svg')
-    })
+    }),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/@ionic/core/dist/ionic/*',
+          dest: '',
+        },
+      ],
+    }),
   ]
 })

@@ -3,26 +3,28 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Vite and Mithril jsx template",
+  "description": "Vite, Mithril JSX TypeScript scaffolding template",
   "main": "src/main.ts",
   "scripts": {
     "test": "vitest",
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "keywords": [
     "Vite.js",
-    "Mithril.js"
+    "Mithril.js",
+    "Vitriol JS",
+    "TypeScript",
+    "JSX"
   ],
   "devDependencies": {
-    "@types/mithril": "^2.2.7",
     "mithril-query": "^4.0.1",
-    "typescript": "^5.6.3",
-    "vite": "^6.0.6",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.13",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
   },
   "dependencies": {
-    "mithril": "2.3.3"
+    "mithril": "^2.3.6"
   }
 }

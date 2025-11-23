@@ -7,37 +7,27 @@ const pages = import.meta.glob('./pages/*.js');
 
 // Import ionic
 import "@ionic/core/css/ionic.bundle.css";
-import { initialize } from "@ionic/core/components";
-import { defineCustomElements } from "@ionic/core/loader";
-
-// Preload all Ionic components (this is what makes it work in production)
-const ionicComponents = import.meta.glob('../node_modules/@ionic/core/dist/esm/*.entry.js');
-for (const path in ionicComponents) {
-  ionicComponents[path]().then(() => {
-    // Component loaded
-  }).catch(err => {
-    console.warn(`Failed to load ${path}:`, err);
-  });
-}
 
 // Import main css file
 import "./css/main.css";
 
 // Utility function to extract route from path
-const extractRouteFromPath = (path) => 
+const extractRouteFromPath = (path) =>
   `/${path.split(/[\\/]/).pop().split('.').slice(0, -1).join('.')}`;
 
 // Utility function to build attribute URL
-const buildAttrsUrl = (attrs) => 
+const buildAttrsUrl = (attrs) =>
   Array.isArray(attrs) && attrs.length ? attrs.map(attr => `/:${encodeURIComponent(attr)}`).join('') : '';
 
 // Initialize application and build routes
 (async () => {
   try {
-    // Initialize ionic components
-    initialize();
-    defineCustomElements();
-
+    // Load Ionic
+    // Set the path to a variable to
+    // prevent Vite from analyzing in dev
+    const ionicPath = '/ionic.esm.js';
+    await import(/* @vite-ignore */ ionicPath);
+    
     // Build routes for each page in ./pages folder
     const routes = {};
     for (const [path, loadPage] of Object.entries(pages)) {

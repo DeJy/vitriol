@@ -5,9 +5,6 @@ export default defineConfig({
     jsxFactory: 'm',
     jsxFragment: "'['"
   },
-  test: {
-    setupFiles: ['/test/setup.js']
-  },
   server: {
     host: true
   },

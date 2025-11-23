@@ -1,6 +1,6 @@
 {
   "name": "create-vitriol",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "type": "module",
   "description": "Create Mithril + Vite projects",
   "bin": {
@@ -42,11 +42,10 @@
   },
   "homepage": "https://github.com/DeJy/vitriol#readme",
   "devDependencies": {
-    "vite": "^6.0.6",
-    "vitest": "^2.1.8",
     "kolorist": "^1.8.0",
     "minimist": "^1.2.8",
     "prompts": "^2.4.2",
-    "unbuild": "^3.2.0"
+    "unbuild": "^3.2.0",
+    "vitest": "^4.0.13"
   }
 }

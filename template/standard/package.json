@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Vite and Mithril basic template",
+  "description": "Vite and Mithril basic scaffolding template",
   "main": "main.js",
   "scripts": {
     "test": "vitest",
@@ -13,14 +13,15 @@
   },
   "keywords": [
     "Vite.js",
-    "Mithril.js"
+    "Mithril.js",
+    "Vitriol JS"
   ],
   "devDependencies": {
     "mithril-query": "^4.0.1",
-    "vite": "^6.0.6",
-    "vitest": "^2.1.8"
+    "vitest": "^4.0.13",
+    "vite": "^7.2.4"
   },
   "dependencies": {
-    "mithril": "2.3.3"
+    "mithril": "2.3.6"
   }
 }
