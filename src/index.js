@@ -41,6 +41,13 @@ const renameFiles = {
 
 const partialFiles = ['README.md', 'vitest.config.js']
 
+const adjustPartialFileExtension = (fileName, language) => {
+  if (language !== 'typescript') return fileName
+  if (fileName.endsWith('.jsx')) return fileName.replace(/\.jsx$/, '.tsx')
+  if (fileName.endsWith('.js')) return fileName.replace(/\.js$/, '.ts')
+  return fileName
+}
+
 function parseArg(argv) {
   const argOut = {}
   if (argv.ionic === true) {
@@ -310,9 +317,9 @@ async function init() {
   }
 
   for (const file of partialFiles) {
-    const filePath = path.join(root, file)
-    if (fs.existsSync(filePath)) {
-      let content = fs.readFileSync(filePath, 'utf-8')
+    const originalFilePath = path.join(root, file)
+    if (fs.existsSync(originalFilePath)) {
+      let content = fs.readFileSync(originalFilePath, 'utf-8')
       for (const [key, value] of Object.entries(variables)) {
         content = content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value)
       }
@@ -338,7 +345,13 @@ async function init() {
       }
 
       content = evaluateConditionalBlocks(content)
-      fs.writeFileSync(filePath, content)
+      const adjustedFile = adjustPartialFileExtension(file, language)
+      const adjustedFilePath = path.join(root, adjustedFile)
+      if (adjustedFilePath !== originalFilePath) {
+        fs.renameSync(originalFilePath, adjustedFilePath)
+      }
+
+      fs.writeFileSync(adjustedFilePath, content)
     }
   }
 
