@@ -4,8 +4,6 @@ A starter template for building Mithril.js apps with Vite.
 
 ## Project Details
 
-- **Type**: ${projectType}
-- **Language**: ${language}
-// if installIonic
+- **Type**: standard
+- **Language**: typescript
 - **Ionic Framework installed**
-// end installIonic

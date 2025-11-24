@@ -4,10 +4,5 @@ export default defineConfig({
   test: {
     setupFiles: ['/test/setup.js']
   },
-  // if projectType==='jsx'
-  esbuild: {
-    jsxFactory: 'm',
-    jsxFragment: "'['"
-  },
-  // end projectType==='jsx' 
+ 
 })

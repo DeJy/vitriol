@@ -39,6 +39,8 @@ const renameFiles = {
   _gitignore: '.gitignore',
 }
 
+const partialFiles = ['README.md', 'vitest.config.js']
+
 function parseArg(argv) {
   const argOut = {}
   if (argv.ionic === true) {
@@ -255,7 +257,7 @@ async function init() {
 
   console.log(`\nScaffolding ${projectType} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}using ${language === 'typescript' ? 'TypeScript' : 'JavaScript'} in ${root}...`)
 
-   const templateDir = path.resolve(
+  const templateDir = path.resolve(
     fileURLToPath(import.meta.url),
     '../..',
     `template/${getTemplateName({ projectType, isIonic: installIonic, language })}`,
@@ -297,7 +299,49 @@ async function init() {
       copy(path.join(commonTemplateDir, file), targetPath)
     }
   }
-  
+
+  // update partial files
+  const variables = {
+    projectName: getProjectName(),
+    packageName: packageName || getProjectName(),
+    projectType,
+    language,
+    installIonic
+  }
+
+  for (const file of partialFiles) {
+    const filePath = path.join(root, file)
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, 'utf-8')
+      for (const [key, value] of Object.entries(variables)) {
+        content = content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value)
+      }
+
+      const conditionalRegex = /([ \t]*)\/\/ if\s+(.+?)\s*[\r\n]+([\s\S]*?)(?:[ \t]*)\/\/ end\s+\2\s*(?:\r?\n)?/g
+      const evaluateConditionalBlocks = (input) => {
+        const evaluateBlock = (match, _indent, condition, blockContent) => {
+          try {
+            const check = new Function('projectType', 'installIonic', 'language', `return ${condition}`)
+            return check(projectType, installIonic, language) ? blockContent : ''
+          } catch (err) {
+            return match
+          }
+        }
+
+        let previous
+        let next = input
+        do {
+          previous = next
+          next = next.replace(conditionalRegex, evaluateBlock)
+        } while (next !== previous)
+        return next
+      }
+
+      content = evaluateConditionalBlocks(content)
+      fs.writeFileSync(filePath, content)
+    }
+  }
+
   if (copyDevContainer) {
     copy(path.resolve(fileURLToPath(import.meta.url), '../../template/.devcontainer'), path.join(root, '.devcontainer'))
     const dcFile = JSON.parse(
