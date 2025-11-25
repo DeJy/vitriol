@@ -1,12 +1,24 @@
-import { defineConfig } from 'vite'
-// @ts-ignore
-import { viteStaticCopy } from 'vite-plugin-static-copy'
-import ioniconList from './extractionicons'
-
+import { defineConfig } from 'vite';
+// if installIonic
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import ioniconList from './extractionicons.js';
+// end installIonic
 export default defineConfig({
+  // if projectType=='jsx'
+  esbuild: {
+    jsxFactory: 'm',
+    jsxFragment: "'['"
+  },
+  // end projectType=='jsx'
   server: {
     host: true
   },
+  // if !installIonic
+  build: {
+    emptyOutDir: true
+  },
+  // end !installIonic
+  // if installIonic
   optimizeDeps: {
     exclude: ['@ionic/core'],
   },
@@ -31,5 +43,6 @@ export default defineConfig({
         },
       ],
     }),
-  ],
+  ]
+  // end installIonic
 })

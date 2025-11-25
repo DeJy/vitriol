@@ -39,13 +39,16 @@ const renameFiles = {
   _gitignore: '.gitignore',
 }
 
-const partialFiles = ['README.md', 'vitest.config.js']
+const partialFiles = ['README.md', 'vitest.config.js', 'package.json.vitriol', 'index.html', 'extractionicons.js.vitriol', 'vite.config.js.vitriol',
+  'tsconfig.json.vitriol']
+
 
 const adjustPartialFileExtension = (fileName, language) => {
-  if (language !== 'typescript') return fileName
-  if (fileName.endsWith('.jsx')) return fileName.replace(/\.jsx$/, '.tsx')
-  if (fileName.endsWith('.js')) return fileName.replace(/\.js$/, '.ts')
-  return fileName
+  let sanitized = fileName.replace(/\.vitriol$/, '')
+  if (language !== 'typescript') return sanitized
+  if (sanitized.endsWith('.jsx')) return sanitized.replace(/\.jsx$/, '.tsx')
+  if (sanitized.endsWith('.js')) return sanitized.replace(/\.js$/, '.ts')
+  return sanitized
 }
 
 function parseArg(argv) {
@@ -279,17 +282,9 @@ async function init() {
     }
   }
   const files = fs.readdirSync(templateDir)
-  for (const file of files.filter((f) => f !== 'package.json')) {
+  for (const file of files) {
     write(file)
   }
-
-  const pkg = JSON.parse(
-    fs.readFileSync(path.join(templateDir, `package.json`), 'utf-8'),
-  )
-
-  pkg.name = packageName || getProjectName()
-
-  write('package.json', JSON.stringify(pkg, null, 2) + '\n')
 
   const cdProjectName = path.relative(cwd, root)
 
@@ -347,8 +342,19 @@ async function init() {
       content = evaluateConditionalBlocks(content)
       const adjustedFile = adjustPartialFileExtension(file, language)
       const adjustedFilePath = path.join(root, adjustedFile)
+      if (content.trim().length === 0) {
+        fs.rmSync(originalFilePath, { force: true })
+        if (adjustedFilePath !== originalFilePath && fs.existsSync(adjustedFilePath)) {
+          fs.rmSync(adjustedFilePath, { force: true })
+        }
+        continue
+      }
+
       if (adjustedFilePath !== originalFilePath) {
-        fs.renameSync(originalFilePath, adjustedFilePath)
+        if (fs.existsSync(adjustedFilePath)) {
+          fs.rmSync(adjustedFilePath, { force: true })
+        }
+        fs.rmSync(originalFilePath, { force: true })
       }
 
       fs.writeFileSync(adjustedFilePath, content)

@@ -1,3 +1,4 @@
+// if installIonic
 // extract the list of ionic icons used in the project  
 // and copy them to the svg directory
 // This is used by the vite-plugin-static-copy plugin
@@ -9,10 +10,16 @@ const SRC_DIR = './src';
 
 const jsxRegex = /<ion-icon\s+[^>]*name=["']([\w-]+)["']/g;
 const mithrilRegex = /m\(\s*["']ion-icon["']\s*,\s*{[^}]*name\s*:\s*["']([\w-]+)["']/g;
-
+// if language=='javascript'
 const usedIcons = [];
 
 function scanDirectory(dir) {
+// end language=='javascript'
+// if language=='typescript'
+const usedIcons: string[] = [];
+
+function scanDirectory(dir: string): void {
+// end language=='typescript'
   fs.readdirSync(dir).forEach(file => {
     const fullPath = path.join(dir, file);
     const stat = fs.statSync(fullPath);
@@ -32,10 +39,16 @@ function scanDirectory(dir) {
     }
   });
 }
+// if language=='typescript'
+export default function extractIcons(source: string, dst: string): Array<{ src: string; dest: string }> {
+// end language=='typescript'
+// if language=='javascript'
 export default function extractIcons(source, dst) {
+// end language=='javascript'
   scanDirectory(SRC_DIR);
   return usedIcons.map(name => ({
     src: `${source}/${name}.svg`,
     dest: dst
   }));
 }
+// end installIonic
