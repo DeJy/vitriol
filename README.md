@@ -103,14 +103,14 @@ Vitriol keeps every variant in sync by sourcing shared `.vitriol` files from the
 
 | Template | Syntax | Ionic | Tutorial source |
 | --- | --- | --- | --- |
-| `standard` | Hyperscript + JavaScript | No | `template/tutorials/standard-js.md` |
-| `standard-ts` | Hyperscript + TypeScript | No | `template/tutorials/standard-ts.md` |
-| `standard-ionic` | Hyperscript + JavaScript | Yes | `template/tutorials/standard-ionic-js.md` |
-| `standard-ionic-ts` | Hyperscript + TypeScript | Yes | `template/tutorials/standard-ionic-ts.md` |
-| `jsx` | JSX + JavaScript | No | `template/tutorials/jsx-js.md` |
-| `jsx-ts` | JSX + TypeScript | No | `template/tutorials/jsx-ts.md` |
-| `jsx-ionic` | JSX + JavaScript | Yes | `template/tutorials/jsx-ionic-js.md` |
-| `jsx-ionic-ts` | JSX + TypeScript | Yes | `template/tutorials/jsx-ionic-ts.md` |
+| `standard` | Hyperscript + JavaScript | No | [template/tutorials/standard-js.md](template/tutorials/standard-js.md) |
+| `standard-ts` | Hyperscript + TypeScript | No | [template/tutorials/standard-ts.md](template/tutorials/standard-ts.md) |
+| `standard-ionic` | Hyperscript + JavaScript | Yes | [template/tutorials/standard-ionic-js.md](template/tutorials/standard-ionic-js.md) |
+| `standard-ionic-ts` | Hyperscript + TypeScript | Yes | [template/tutorials/standard-ionic-ts.md](template/tutorials/standard-ionic-ts.md) |
+| `jsx` | JSX + JavaScript | No | [template/tutorials/jsx-js.md](template/tutorials/jsx-js.md) |
+| `jsx-ts` | JSX + TypeScript | No | [template/tutorials/jsx-ts.md](template/tutorials/jsx-ts.md) |
+| `jsx-ionic` | JSX + JavaScript | Yes | [template/tutorials/jsx-ionic-js.md](template/tutorials/jsx-ionic-js.md) |
+| `jsx-ionic-ts` | JSX + TypeScript | Yes | [template/tutorials/jsx-ionic-ts.md](template/tutorials/jsx-ionic-ts.md) |
 
 ## License
 
