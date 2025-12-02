@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import minimist from 'minimist'
-import { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName } from '../src/index.js'
+import { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions } from '../src/index.js'
 
 describe('parseArg', () => {
   it('should parse ionic flag', () => {
@@ -151,39 +151,5 @@ describe('pkgFromUserAgent', () => {
 
   it('should return undefined if no user agent', () => {
     expect(pkgFromUserAgent(undefined)).toBe(undefined)
-  })
-})
-
-describe('getTemplateName', () => {
-  it('should return standard template', () => {
-    expect(getTemplateName({ projectType: 'standard', isIonic: false, language: 'javascript' })).toBe('standard')
-  })
-
-  it('should return standard-ts template', () => {
-    expect(getTemplateName({ projectType: 'standard', isIonic: false, language: 'typescript' })).toBe('standard-ts')
-  })
-
-  it('should return standard-ionic template', () => {
-    expect(getTemplateName({ projectType: 'standard', isIonic: true, language: 'javascript' })).toBe('standard-ionic')
-  })
-
-  it('should return standard-ionic-ts template', () => {
-    expect(getTemplateName({ projectType: 'standard', isIonic: true, language: 'typescript' })).toBe('standard-ionic-ts')
-  })
-
-  it('should return jsx template', () => {
-    expect(getTemplateName({ projectType: 'jsx', isIonic: false, language: 'javascript' })).toBe('jsx')
-  })
-
-  it('should return jsx-ts template', () => {
-    expect(getTemplateName({ projectType: 'jsx', isIonic: false, language: 'typescript' })).toBe('jsx-ts')
-  })
-
-  it('should return jsx-ionic template', () => {
-    expect(getTemplateName({ projectType: 'jsx', isIonic: true, language: 'javascript' })).toBe('jsx-ionic')
-  })
-
-  it('should return jsx-ionic-ts template', () => {
-    expect(getTemplateName({ projectType: 'jsx', isIonic: true, language: 'typescript' })).toBe('jsx-ionic-ts')
   })
 })

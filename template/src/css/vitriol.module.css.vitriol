@@ -1,0 +1,14 @@
+// if isIon
+/* Footer styles */
+.footer {
+  --border-color: #ff6464;
+  --color: #ff6464;
+}
+// else isIon
+/* Footer styles */
+.footer {
+  border-color: #646cff;
+  border-width: 2px;
+  border-style: solid;
+}
+// end isIon

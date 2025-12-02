@@ -1,0 +1,11 @@
+# Vitriol JS
+
+A starter template for building Mithril.js apps with Vite.
+
+## Project Details
+
+- **Type**: §{projectType}
+- **Language**: §{language}
+// if isIon
+- **Ionic Framework installed**
+// end isIon

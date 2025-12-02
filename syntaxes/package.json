@@ -1,0 +1,44 @@
+{
+  "name": "vitriol-syntax",
+  "displayName": "Vitriol Syntax",
+  "description": "Project-local syntax highlighting for .vitriol",
+  "version": "0.0.1",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "scripts": {
+    "postinstall": "vsce package && code --install-extension vitriol-syntax-0.0.1.vsix"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "vitriol",
+        "aliases": [
+          "Vitriol"
+        ],
+        "extensions": [
+          ".vitriol"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "vitriol",
+        "scopeName": "source.vitriol",
+        "path": "./vitriol.tmLanguage.json"
+      }
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vsce": "^2.15.0"
+  },
+  "repository": {}
+}

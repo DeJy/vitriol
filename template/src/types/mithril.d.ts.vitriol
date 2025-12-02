@@ -1,0 +1,3 @@
+// if isTs
+declare module 'mithril'
+// end isTs

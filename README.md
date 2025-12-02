@@ -99,16 +99,18 @@ npm create vitriol@latest my-ionic-app -- --jsx --ionic
 
 ## Templates
 
-The tool provides the following templates based on your selections. Each template comes with a specific tutorial:
+Vitriol keeps every variant in sync by sourcing shared `.vitriol` files from the `template/` root. During scaffolding it also copies the matching markdown tutorial from `template/tutorials` into the generated project.
 
-- `standard`: Hyperscript + JavaScript ([Tutorial](./template/standard/tutorial.md))
-- `standard-ts`: Hyperscript + TypeScript ([Tutorial](./template/standard-ts/tutorial.md))
-- `standard-ionic`: Hyperscript + JavaScript + Ionic ([Tutorial](./template/standard-ionic/tutorial.md))
-- `standard-ionic-ts`: Hyperscript + TypeScript + Ionic ([Tutorial](./template/standard-ionic-ts/tutorial.md))
-- `jsx`: JSX + JavaScript ([Tutorial](./template/jsx/tutorial.md))
-- `jsx-ts`: JSX + TypeScript ([Tutorial](./template/jsx-ts/tutorial.md))
-- `jsx-ionic`: JSX + JavaScript + Ionic ([Tutorial](./template/jsx-ionic/tutorial.md))
-- `jsx-ionic-ts`: JSX + TypeScript + Ionic ([Tutorial](./template/jsx-ionic-ts/tutorial.md))
+| Template | Syntax | Ionic | Tutorial source |
+| --- | --- | --- | --- |
+| `standard` | Hyperscript + JavaScript | No | `template/tutorials/standard-js.md` |
+| `standard-ts` | Hyperscript + TypeScript | No | `template/tutorials/standard-ts.md` |
+| `standard-ionic` | Hyperscript + JavaScript | Yes | `template/tutorials/standard-ionic-js.md` |
+| `standard-ionic-ts` | Hyperscript + TypeScript | Yes | `template/tutorials/standard-ionic-ts.md` |
+| `jsx` | JSX + JavaScript | No | `template/tutorials/jsx-js.md` |
+| `jsx-ts` | JSX + TypeScript | No | `template/tutorials/jsx-ts.md` |
+| `jsx-ionic` | JSX + JavaScript | Yes | `template/tutorials/jsx-ionic-js.md` |
+| `jsx-ionic-ts` | JSX + TypeScript | Yes | `template/tutorials/jsx-ionic-ts.md` |
 
 ## License
 
@@ -117,5 +119,9 @@ The tool provides the following templates based on your selections. Each templat
 ## Tutorial
 
 Tutorial can be found [here](https://dev.to/dejy/vitriol-mithrilvite-3ba1)
+
+## Developer Tutorial
+
+Want to contribute to the generator itself? Read [tutorial-dev.md](./tutorial-dev.md) for instructions on local setup, editing `.vitriol` templates, packaging the VS Code syntax extension, and submitting issues or pull requests.
 
 

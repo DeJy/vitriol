@@ -1,0 +1,14 @@
+// if isIon && isTs
+declare module '@ionic/core/components' {
+  export interface HTMLIonModalElement extends HTMLElement {
+    trigger?: string
+    backdropDismiss: boolean
+    dismiss(data?: unknown, role?: string): Promise<boolean>
+    addEventListener(
+      type: string,
+      listener: (ev: CustomEvent<{ data?: unknown; role?: string }>) => void,
+      options?: boolean | AddEventListenerOptions
+    ): void
+  }
+}
+// end isIon && isTs

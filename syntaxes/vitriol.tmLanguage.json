@@ -1,0 +1,29 @@
+{
+  "scopeName": "source.vitriol",
+  "name": "Vitriol",
+  "fileTypes": ["vitriol"],
+  "patterns": [
+    {
+      "name": "comment.control.if.vitriol",
+      "match": "//\\s*if.*$"
+    },
+    {
+      "name": "comment.control.else.vitriol",
+      "match": "//\\s*else.*$"
+    },
+    {
+      "name": "comment.control.end.vitriol",
+      "match": "//\\s*end.*$"
+    },
+    {
+      "name": "comment.line.vitriol",
+      "match": "//.*$"
+    },
+    {
+      "include": "source.ts"
+    },
+    {
+      "include": "source.js"
+    }
+  ]
+}

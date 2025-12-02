@@ -1,0 +1,24 @@
+// if isIon
+// if isJSX
+export function PageHeader() {
+  return {
+    view: () => (
+      <ion-header>
+        <ion-toolbar color="primary">
+          <ion-title>Vitriol JS</ion-title>
+        </ion-toolbar>
+      </ion-header>
+    ),
+  }
+}
+// else isJSX
+export function PageHeader() {
+  return {
+    view: () =>
+      m('ion-header', [
+        m('ion-toolbar', { color: 'primary' }, [m('ion-title', 'Vitriol JS')]),
+      ]),
+  }
+}
+// end isJSX
+// end isIon

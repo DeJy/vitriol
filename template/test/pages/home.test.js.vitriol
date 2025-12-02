@@ -1,0 +1,25 @@
+import Home from '../../src/pages/home';
+
+const buttonSelector =
+  // if isIon
+  '.card ion-button'
+  // else isIon
+  'button'
+  // end isIon
+
+describe('display home page', () => {
+  let result = mq(Home);
+  let buttons = result.find(buttonSelector);
+  it('First Button display correctly', () => {
+    expect(buttons[0].innerHTML).toEqual('First count is 100');
+  });
+  it('Second Button display correctly', () => {
+    expect(buttons[1].innerHTML).toEqual('Second count is 100');
+  });
+
+  it('First Button after click display correctly', () => {
+    result.click(buttonSelector);
+    expect(buttons[0].innerHTML).toEqual('First count is 101');
+    expect(buttons[1].innerHTML).toEqual('Second count is 100');
+  });
+});

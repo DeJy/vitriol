@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Count Button > Create count button 1`] =
+  // if isIon
+  `"<ion-button>Count Button Test is 100</ion-button>"`;
+  // else isIon
+  `"<button>Count Button Test is 100</button>"`;
+  // end isIon

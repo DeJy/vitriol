@@ -34,21 +34,139 @@ const defaultTargetDir = 'vitriol-project'
 const defaultProjectType = 'standard'
 const defaultLanguage = 'javascript'
 const cwd = process.cwd()
+const repoRoot = path.resolve(fileURLToPath(import.meta.url), '../..')
 
 const renameFiles = {
   _gitignore: '.gitignore',
 }
+const skippedDirectories = new Set(['node_modules', '.git'])
+const conditionalRegex = /([ \t]*)\/\/ if\s+(.+?)[ \t]*[\r\n]+([\s\S]*?)(?:[ \t]*)?(?:\/\/ else\s+\2[ \t]*[\r\n]+([\s\S]*?))?[ \t]*\/\/ end\s+\2[ \t]*(?:\r?\n)?/g
 
-const partialFiles = ['README.md', 'vitest.config.js', 'package.json.vitriol', 'index.html', 'extractionicons.js.vitriol', 'vite.config.js.vitriol',
-  'tsconfig.json.vitriol']
+const dynamicExtensionResolvers = {
+  view: ({ projectType, language }) => {
+    if (projectType === 'jsx') {
+      return language === 'typescript' ? '.tsx' : '.jsx'
+    }
+    return language === 'typescript' ? '.ts' : '.js'
+  },
+}
+
+const resolveDynamicExtension = (fileName, variables) => {
+  const match = fileName.match(/(\.?)\[([a-z0-9_-]+)\]$/i)
+  if (!match) {
+    return null
+  }
+  const [, hasDot, token] = match
+  const resolver = dynamicExtensionResolvers[token]
+  if (!resolver) {
+    return fileName.replace(match[0], '')
+  }
+  const base = fileName.slice(0, match.index ?? fileName.length - match[0].length)
+  const extension = resolver({
+    projectType: variables.projectType,
+    language: variables.language,
+  })
+  return base + extension
+}
 
 
-const adjustPartialFileExtension = (fileName, language) => {
+const adjustPartialFileExtension = (fileName, variables, convertJsForTypescript = true) => {
   let sanitized = fileName.replace(/\.vitriol$/, '')
-  if (language !== 'typescript') return sanitized
+  const dynamicResult = resolveDynamicExtension(sanitized, variables)
+  if (dynamicResult !== null) {
+    return dynamicResult
+  }
+
+  const language = variables.language || 'javascript'
+  const normalizedPath = sanitized.replace(/\\/g, '/')
+  const normalizedNoLeading = normalizedPath.replace(/^\.\/?/, '')
+  const isTestFile = normalizedNoLeading.startsWith('test/') || normalizedNoLeading.includes('/test/')
+  const shouldConvert = convertJsForTypescript && !isTestFile
+
+  if (!shouldConvert || language !== 'typescript') {
+    return sanitized
+  }
   if (sanitized.endsWith('.jsx')) return sanitized.replace(/\.jsx$/, '.tsx')
   if (sanitized.endsWith('.js')) return sanitized.replace(/\.js$/, '.ts')
   return sanitized
+}
+
+const replaceVariablesInContent = (content, variables) => {
+  let updated = content
+  for (const [key, value] of Object.entries(variables)) {
+    updated = updated.replace(new RegExp(`\\§\\{${key}\\}`, 'g'), String(value))
+  }
+  return updated
+}
+
+const evaluateConditionalBlocks = (input, variables) => {
+  const evaluateBlock = (match, _indent, condition, trueContent, falseContent = '') => {
+    try {
+      const check = new Function('projectType', 'language', 'isJs', 'isTs', 'isJSX', 'isStd', 'isIon', 'ext', `return ${condition}`)
+      return check(variables.projectType, variables.language, variables.isJs, variables.isTs, variables.isJSX, variables.isStd, variables.isIon, variables.ext)
+        ? trueContent
+        : falseContent
+    } catch (err) {
+      return match
+    }
+  }
+
+  let previous
+  let next = input
+  do {
+    previous = next
+    next = next.replace(conditionalRegex, evaluateBlock)
+  } while (next !== previous)
+  return next
+}
+
+const processTsComments = (content, variables) => {
+  const tsCommentRegex = /\/\*@ts\s+([\s\S]*?)\s*\*\//g
+  return content.replace(tsCommentRegex, (match, typeContent) => {
+    return variables.language === 'typescript' ? typeContent : ''
+  })
+}
+
+const transformTemplatedFile = ({ originalPath, relativePath }, rootDir, variables) => {
+  let content = fs.readFileSync(originalPath, 'utf-8')
+  content = replaceVariablesInContent(content, variables)
+  content = evaluateConditionalBlocks(content, variables)
+  content = processTsComments(content, variables)
+
+  const finalRelativePath = adjustPartialFileExtension(relativePath, variables)
+  const finalPath = path.join(rootDir, finalRelativePath)
+
+  if (content.trim().length === 0) {
+    fs.rmSync(originalPath, { force: true })
+    if (finalPath !== originalPath && fs.existsSync(finalPath)) {
+      fs.rmSync(finalPath, { force: true })
+    }
+    return
+  }
+
+  if (finalPath !== originalPath) {
+    fs.rmSync(originalPath, { force: true })
+    if (fs.existsSync(finalPath)) {
+      fs.rmSync(finalPath, { force: true })
+    }
+  }
+
+  fs.mkdirSync(path.dirname(finalPath), { recursive: true })
+  fs.writeFileSync(finalPath, content)
+}
+
+const processTemplatedFiles = (rootDir, variables, relativeVitriolPaths = []) => {
+  if (!relativeVitriolPaths.length) {
+    return
+  }
+
+  for (const relativePath of relativeVitriolPaths) {
+    const originalPath = path.join(rootDir, relativePath)
+    if (!fs.existsSync(originalPath)) {
+      continue
+    }
+    transformTemplatedFile({ originalPath, relativePath }, rootDir, variables)
+  }
 }
 
 function parseArg(argv) {
@@ -67,8 +185,7 @@ function parseArg(argv) {
 
   if (argv.typescript === true) {
     argOut.language = 'typescript'
-  }
-  if (argv.javascript === true) {
+  } else if (argv.javascript === true) {
     argOut.language = 'javascript'
   }
 
@@ -137,6 +254,60 @@ function copyDir(srcDir, destDir) {
   }
 }
 
+const recordTemplatedFile = (list, relativePath) => {
+  if (relativePath.endsWith('.vitriol')) {
+    list.push(relativePath)
+  }
+}
+
+const copyDirWithTracking = (srcDir, destDir, vitriolFiles, relativeBase) => {
+  fs.mkdirSync(destDir, { recursive: true })
+  const entries = fs.readdirSync(srcDir, { withFileTypes: true })
+  for (const entry of entries) {
+    const srcPath = path.join(srcDir, entry.name)
+    const destPath = path.join(destDir, entry.name)
+    const relativePath = path.join(relativeBase, entry.name)
+    if (entry.isDirectory()) {
+      if (skippedDirectories.has(entry.name)) {
+        continue
+      }
+      copyDirWithTracking(srcPath, destPath, vitriolFiles, relativePath)
+    } else if (entry.isFile()) {
+      fs.copyFileSync(srcPath, destPath)
+      recordTemplatedFile(vitriolFiles, relativePath)
+    }
+  }
+}
+
+const copyTemplateContents = (templateRootDir, targetDir) => {
+  if (!fs.existsSync(templateRootDir)) {
+    return []
+  }
+
+  const vitriolFiles = []
+  const ignoredRootEntries = new Set(['tutorials', '.devcontainer'])
+  const rootEntries = fs.readdirSync(templateRootDir, { withFileTypes: true })
+
+  for (const entry of rootEntries) {
+    if (ignoredRootEntries.has(entry.name)) {
+      continue
+    }
+
+    const srcPath = path.join(templateRootDir, entry.name)
+    const destName = renameFiles[entry.name] ?? entry.name
+    const destPath = path.join(targetDir, destName)
+
+    if (entry.isDirectory()) {
+      copyDirWithTracking(srcPath, destPath, vitriolFiles, destName)
+    } else if (entry.isFile()) {
+      fs.copyFileSync(srcPath, destPath)
+      recordTemplatedFile(vitriolFiles, destName)
+    }
+  }
+
+  return vitriolFiles
+}
+
 function pkgFromUserAgent(userAgent) {
   if (!userAgent) return undefined
   const pkgSpec = userAgent.split(' ')[0]
@@ -147,8 +318,13 @@ function pkgFromUserAgent(userAgent) {
   }
 }
 
-function getTemplateName({ projectType, isIonic, language }) {
-  return `${projectType}${isIonic ? '-ionic' : ''}${language === 'typescript' ? '-ts' : ''}`
+function getTutorialFileName({ projectType, installIonic, language }) {
+  const parts = [projectType]
+  if (installIonic) {
+    parts.push('ionic')
+  }
+  parts.push(language === 'typescript' ? 'ts' : 'js')
+  return `${parts.join('-')}.md`
 }
 
 async function init() {
@@ -265,101 +441,38 @@ async function init() {
     fs.mkdirSync(root, { recursive: true })
   }
 
-  console.log(`\nScaffolding ${projectType} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}using ${language === 'typescript' ? 'TypeScript' : 'JavaScript'} in ${root}...`)
-
-  const templateDir = path.resolve(
-    fileURLToPath(import.meta.url),
-    '../..',
-    `template/${getTemplateName({ projectType, isIonic: installIonic, language })}`,
-  )
-
-  const write = (file, content) => {
-    const targetPath = path.join(root, renameFiles[file] ?? file)
-    if (content) {
-      fs.writeFileSync(targetPath, content)
-    } else {
-      copy(path.join(templateDir, file), targetPath)
-    }
-  }
-  const files = fs.readdirSync(templateDir)
-  for (const file of files) {
-    write(file)
-  }
+  console.log(`\nScaffolding ${projectType=='jsx'?'JSX':'Standard'} Vitriol project ${installIonic ? 'with Ionic Framework ' : ''}using ${language === 'typescript' ? 'TypeScript' : 'JavaScript'} in ${root}...`)
 
   const cdProjectName = path.relative(cwd, root)
 
-  // copy all file and folder from commun folder
-  const commonTemplateDir = path.resolve(
+  const templateRootDir = path.resolve(
     fileURLToPath(import.meta.url),
     '../..',
-    `template/commun`,
+    'template',
   )
-  if (fs.existsSync(commonTemplateDir)) {
-    const commonFiles = fs.readdirSync(commonTemplateDir)
-    for (const file of commonFiles) {
-      const targetPath = path.join(root, renameFiles[file] ?? file)
-      copy(path.join(commonTemplateDir, file), targetPath)
-    }
+  const templateVitriolFiles = copyTemplateContents(templateRootDir, root)
+
+  const tutorialsDir = path.join(templateRootDir, 'tutorials')
+  const tutorialFileName = getTutorialFileName({ projectType, installIonic, language })
+  const tutorialSourcePath = path.join(tutorialsDir, tutorialFileName)
+  if (fs.existsSync(tutorialSourcePath)) {
+    fs.copyFileSync(tutorialSourcePath, path.join(root, 'tutorial.md'))
   }
 
-  // update partial files
   const variables = {
     projectName: getProjectName(),
     packageName: packageName || getProjectName(),
     projectType,
     language,
-    installIonic
+    isIon: installIonic,
+    isTs: language === 'typescript',
+    isJs: language === 'javascript',
+    isJSX: projectType === 'jsx',
+    isStd: projectType === 'standard',
+    ext: language === 'typescript' ? (projectType === 'jsx' ? 'tsx' : 'ts') : (projectType === 'jsx' ? 'jsx' : 'js')
   }
 
-  for (const file of partialFiles) {
-    const originalFilePath = path.join(root, file)
-    if (fs.existsSync(originalFilePath)) {
-      let content = fs.readFileSync(originalFilePath, 'utf-8')
-      for (const [key, value] of Object.entries(variables)) {
-        content = content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value)
-      }
-
-      const conditionalRegex = /([ \t]*)\/\/ if\s+(.+?)\s*[\r\n]+([\s\S]*?)(?:[ \t]*)\/\/ end\s+\2\s*(?:\r?\n)?/g
-      const evaluateConditionalBlocks = (input) => {
-        const evaluateBlock = (match, _indent, condition, blockContent) => {
-          try {
-            const check = new Function('projectType', 'installIonic', 'language', `return ${condition}`)
-            return check(projectType, installIonic, language) ? blockContent : ''
-          } catch (err) {
-            return match
-          }
-        }
-
-        let previous
-        let next = input
-        do {
-          previous = next
-          next = next.replace(conditionalRegex, evaluateBlock)
-        } while (next !== previous)
-        return next
-      }
-
-      content = evaluateConditionalBlocks(content)
-      const adjustedFile = adjustPartialFileExtension(file, language)
-      const adjustedFilePath = path.join(root, adjustedFile)
-      if (content.trim().length === 0) {
-        fs.rmSync(originalFilePath, { force: true })
-        if (adjustedFilePath !== originalFilePath && fs.existsSync(adjustedFilePath)) {
-          fs.rmSync(adjustedFilePath, { force: true })
-        }
-        continue
-      }
-
-      if (adjustedFilePath !== originalFilePath) {
-        if (fs.existsSync(adjustedFilePath)) {
-          fs.rmSync(adjustedFilePath, { force: true })
-        }
-        fs.rmSync(originalFilePath, { force: true })
-      }
-
-      fs.writeFileSync(adjustedFilePath, content)
-    }
-  }
+  processTemplatedFiles(root, variables, templateVitriolFiles)
 
   if (copyDevContainer) {
     copy(path.resolve(fileURLToPath(import.meta.url), '../../template/.devcontainer'), path.join(root, '.devcontainer'))
@@ -367,7 +480,7 @@ async function init() {
       fs.readFileSync(path.join(root, '.devcontainer/devcontainer.json'), 'utf-8'),
     )
     dcFile.name = packageName || getProjectName()
-    write('.devcontainer/devcontainer.json', JSON.stringify(dcFile, null, 2) + '\n')
+    fs.writeFileSync(path.join(root, '.devcontainer/devcontainer.json'), JSON.stringify(dcFile, null, 2) + '\n')
   }
 
   console.log(`\nDone. Now run:\n`)
@@ -394,7 +507,7 @@ async function init() {
   console.log()
 }
 
-export { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, getTemplateName, init }
+export { formatTargetDir, isValidPackageName, toValidPackageName, pkgFromUserAgent, parseArg, minimistOptions, init }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   init().catch((e) => {

@@ -1,0 +1,50 @@
+// if isTs
+type CountButtonAttrs = {
+  label?: string
+}
+// end isTs
+
+export function CountButton() {
+  let count = 0
+
+  const addCount = () => {
+    count += 1
+  }
+
+  return {
+    oninit: () => {
+      count = 100
+      console.log('Init button')
+    },
+    oncreate: () => {
+      console.log('Create button')
+    },
+    onbeforeupdate: () => {
+      console.log('Before Update button')
+    },
+    onupdate: () => {
+      console.log('Update button')
+    },
+    onbeforeremove: () => {
+      console.log('Before Remove button')
+    },
+    onremove: () => {
+      console.log('Remove button')
+    },
+    view: ({ attrs }/*@ts : m.Vnode<CountButtonAttrs> */) => (
+      // if isJSX
+      // if isIon
+      <ion-button onclick={addCount}>{`${attrs.label ?? 'Count'} is ${count}`}</ion-button>
+      // else isIon
+      <button onclick={addCount}>{`${attrs.label ?? 'Count'} is ${count}`}</button>
+      // end isIon
+      // else isJSX
+      // if isIon
+      m('ion-button', { onclick: addCount }, `${attrs.label ?? 'Count'} is ${count}`)
+      // else isIon
+      m('button', { onclick: addCount }, `${attrs.label ?? 'Count'} is ${count}`)
+      // end isIon
+      // end isJSX
+    )
+  }
+}

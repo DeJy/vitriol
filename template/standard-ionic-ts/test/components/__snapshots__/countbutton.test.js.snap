@@ -1,3 +1,0 @@
-// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
-
-exports[`Count Button > Create count button 1`] = `"<ion-button>Count Button Test is 100</ion-button>"`;

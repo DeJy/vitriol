@@ -1,0 +1,60 @@
+import m from 'mithril'
+
+globalThis.m = m
+
+// if isIon
+import '@ionic/core/css/ionic.bundle.css'
+// end isIon
+
+import './css/main.css'
+
+// if isTs
+type RouteValue = any
+type RouteModule = {
+  default: RouteValue
+  route?: string
+  attrs?: string[]
+}
+// end isTs
+
+const pages = import.meta.glob/*@ts <RouteModule> */('./pages/*.{js,jsx,ts,tsx}')
+
+const extractRouteFromPath = (filePath/*@ts : string */)/*@ts : string */ =>
+  `/${filePath.split(/[\\/]/).pop()?.split('.').slice(0, -1).join('.') ?? ''}`
+
+const buildAttrsUrl = (attrs/*@ts ?: string[] */)/*@ts : string */ =>
+  Array.isArray(attrs) && attrs.length
+    ? attrs.map((attr) => `/:${encodeURIComponent(attr)}`).join('')
+    : ''
+
+
+const bootstrap = async () => {
+  // if isIon
+  const ionicPath = '/ionic.esm.js'
+  await import(/* @vite-ignore */ ionicPath)
+  // end isIon
+
+  const routes /*@ts : Record<string, RouteValue>*/ = {}
+  
+  for (const [filePath, loadPage] of Object.entries(pages)) {
+    const pageModule = await loadPage()
+    const route = pageModule.route ?? extractRouteFromPath(filePath)
+    routes[route + buildAttrsUrl(pageModule.attrs)] = pageModule.default
+  }
+
+  const mountElement = document.querySelector('#app')
+  if (!mountElement) {
+    throw new Error('Unable to find #app mount element')
+  }
+
+  m.route(mountElement, '/home', routes)
+}
+
+bootstrap().catch((error) => {
+  console.error('Error while loading the application:', error)
+  const mountElement = document.querySelector('#app')
+  if (mountElement) {
+    mountElement.innerHTML =
+      'An error occurred while loading the application. Please try again later.'
+  }
+})

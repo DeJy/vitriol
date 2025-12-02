@@ -1,0 +1,212 @@
+import mithrilLogo from '../assets/mithril.svg'
+import viteLogo from '/vite.svg'
+import { CountButton } from '../components/countbutton'
+import { makeid } from '../lib/utils'
+
+// if isIon
+import ionicLogo from '/ionic.svg'
+import { PageHeader } from '../components/header'
+import { VitriolModal } from '../modals/vitriolmodal'
+// end isIon
+
+export const route = '/home'
+
+const editFilePath = 'src/page/home.§{ext}'
+  
+const logos = [
+  {
+    href: 'https://vitejs.dev',
+    src: viteLogo,
+    className: 'logo',
+    alt: 'Vite logo',
+  },
+  {
+    href: 'https://mithril.js.org',
+    src: mithrilLogo,
+    className: 'logo mithril',
+    alt: 'Mithril logo',
+  },
+  // if isIon
+  {
+    href: 'https://ionicframework.com/',
+    src: ionicLogo,
+    className: 'logo',
+    alt: 'Ionic logo',
+  },
+  // end isIon
+]
+
+const buttonLabels = ['First count', 'Second count']
+
+const footerText =
+  // if isIon
+  'Click on the Vite, Mithril and Ionic logos to learn more'
+  // else isIon
+  'Click on the Vite and Mithril logos to learn more'
+  // end isIon
+
+const navigateToRandomVitriol = () => m.route.set(`/vitriol/${makeid(10)}`)
+
+const cardMessagePrefix = 'Edit '
+const cardMessageSuffix = ' and save to test HMR'
+
+// if isJSX
+const renderLogos = () => (
+  <div>
+    {logos.map(({ href, src, className, alt }) => (
+      <a key={href} href={href} target="_blank">
+        <img src={src} class={className} alt={alt} />
+      </a>
+    ))}
+  </div>
+)
+
+const renderCard = () => (
+  <div class="card">
+    {buttonLabels.map((label) => (
+      <p key={label}>
+        <CountButton label={label} />
+      </p>
+    ))}
+    <p>
+      {cardMessagePrefix}
+      <code>{editFilePath}</code>
+      {cardMessageSuffix}
+    </p>
+  </div>
+)
+// if isIon
+const renderIonicContent = (modalCallBack/*@ts : (data?: string) => void */) => (
+  <>
+    <PageHeader />
+    <ion-content fullscreen class="ion-padding">
+      <ion-fab edge="true" horizontal="end" vertical="top" slot="fixed">
+        <ion-fab-button color="danger" id="open-modal">
+          <ion-icon name="browsers-outline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+      <VitriolModal trigger="open-modal" cb={modalCallBack} />
+      <ion-item class="ion-text-center">
+        <ion-label class="clickable" onclick={navigateToRandomVitriol}>
+          <h1>Vitriol JS</h1>
+        </ion-label>
+      </ion-item>
+      {renderLogos()}
+      <h2>Vite + Mithril + Ionic</h2>
+      {renderCard()}
+      {renderIonicFooter()}
+    </ion-content>
+  </>
+)
+
+const renderIonicFooter = () => (
+  <ion-note>
+    <footer>{footerText}</footer>
+  </ion-note>
+)
+// else isIon
+const renderBaseContent = () => (
+  <>
+    {renderLogos()}
+    <h1 class="clickable" onclick={navigateToRandomVitriol}>
+      Vitriol JS
+    </h1>
+    <h2>Vite + Mithril</h2>
+    {renderCard()}
+    {renderFooter()}
+  </>
+)
+const renderFooter = () => (
+  <p class="read-the-docs">
+    <footer>{footerText}</footer>
+  </p>
+)
+// end isIon
+
+export default function Home() {
+  // if isIon
+  const modalCallBack = (data/*@ts ?: string */) => {
+    console.log(`Id returned by the modal is ${data}`)
+  }
+  // end isIon
+  return {
+    view: () => (
+      // if isIon
+      renderIonicContent(modalCallBack)
+      // else isIon
+      renderBaseContent()
+      // end isIon
+    ),
+  }
+}
+// else isJSX
+const renderLogos = () =>
+  m(
+    'div',
+    logos.map(({ href, src, className, alt }) =>
+      m('a', { href, target: '_blank' }, [m('img', { src, class: className, alt })]),
+    ),
+  )
+
+const renderCard = () =>
+  m('div', { class: 'card' }, [
+    ...buttonLabels.map((label) => m('p', [m(CountButton, { label })])),
+    m('p', [cardMessagePrefix, m('code', editFilePath), cardMessageSuffix]),
+  ])
+
+// if isIon
+const renderIonicContent = (modalCallBack/*@ts : (data?: string) => void */) =>
+  m('', [
+    m(PageHeader),
+    m('ion-content', { fullscreen: true, class: 'ion-padding' }, [
+      m('ion-fab', { edge: true, horizontal: 'end', vertical: 'top', slot: 'fixed' }, [
+        m('ion-fab-button', { color: 'danger', id: 'open-modal' }, [m('ion-icon', { name: 'browsers-outline' })]),
+      ]),
+      m(VitriolModal, { trigger: 'open-modal', cb: modalCallBack }),
+      m('ion-item', { class: 'ion-text-center' }, [
+        m(
+          'ion-label',
+          { class: 'clickable', onclick: navigateToRandomVitriol },
+          m('h1', 'Vitriol JS'),
+        ),
+      ]),
+      renderLogos(),
+      m('h2', 'Vite + Mithril + Ionic'),
+      renderCard(),
+      renderIonicFooter(),
+    ]),
+  ])
+const renderIonicFooter = () => m('ion-note', [m('footer', footerText)])
+
+// else isIon
+const renderBaseContent = () =>
+  m('', [
+    renderLogos(),
+    m('h1', { class: 'clickable', onclick: navigateToRandomVitriol }, 'Vitriol JS'),
+    m('h2', 'Vite + Mithril'),
+    renderCard(),
+    renderFooter(),
+  ])
+
+const renderFooter = () =>
+  m('p', { class: 'read-the-docs' }, [m('footer', footerText)])
+
+// end isIon
+
+export default function Home() {
+  // if isIon
+  const modalCallBack = (data/*@ts ?: string */) => {
+    console.log(`Id returned by the modal is ${data}`)
+  }
+  // end isIon
+  return {
+    view: () => (
+      // if isIon
+      renderIonicContent(modalCallBack)
+      // else isIon
+      renderBaseContent()
+      // end isIon
+    ),
+  }
+}
+// end isJSX

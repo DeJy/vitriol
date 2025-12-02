@@ -1,6 +1,6 @@
 {
   "name": "create-vitriol",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "type": "module",
   "description": "Create Mithril + Vite projects",
   "bin": {
@@ -15,7 +15,8 @@
     "dev": "unbuild --stub",
     "build": "unbuild",
     "test": "vitest run './tests/index.test.js'",
-    "integration": "vitest run './tests/integration.test.js'"
+    "integration": "vitest run './tests/integration.test.js';",
+    "syntax": "cd syntaxes && npm i && cd .."
   },
   "repository": {
     "type": "git",

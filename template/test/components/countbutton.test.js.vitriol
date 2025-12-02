@@ -1,0 +1,28 @@
+import { CountButton } from '../../src/components/countbutton';
+
+const buttonSelector =
+  // if isIon
+  'ion-button'
+  // else isIon
+  'button'
+  // end isIon
+
+describe('Count Button', () => {
+  let result, label;
+  it('Create count button', () => {
+    label = 'Count Button Test';
+    result = mq(CountButton, { label });
+    expect(result.rootEl.innerHTML).matchSnapshot();
+  });
+  it('Label renders correctly', () => {
+    expect(result.first(buttonSelector).innerHTML).toEqual(`${label} is 100`);
+  });
+  it('Count function works correctly', () => {
+    result.click(buttonSelector);
+    expect(result.first(buttonSelector).innerHTML).toEqual(`${label} is 101`);
+  });
+  it('Remove component', () => {
+    result.onremove();
+    expect(result.should.not.have(buttonSelector)).toBeTruthy;
+  });
+});

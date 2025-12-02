@@ -1,0 +1,159 @@
+import style from '../css/vitriol.module.css'
+import mithrilLogo from '../assets/mithril.svg'
+import viteLogo from '/vite.svg'
+// if isIon
+import ionicLogo from '/ionic.svg'
+import { PageHeader } from '../components/header'
+// end isIon
+
+export const attrs = ['id']
+
+// if isTs
+type VitriolAttrs = {
+  id : string
+}
+// end isTs
+
+const logos = [
+  {
+    href: 'https://vitejs.dev',
+    src: viteLogo,
+    className: 'logo',
+    alt: 'Vite logo',
+  },
+  {
+    href: 'https://mithril.js.org',
+    src: mithrilLogo,
+    className: 'logo mithril',
+    alt: 'Mithril logo',
+  },
+  // if isIon
+  {
+    href: 'https://ionicframework.com/',
+    src: ionicLogo,
+    className: 'logo',
+    alt: 'Ionic logo',
+  },
+  // end isIon
+]
+// if !isIon
+const titleText = 'Vitriol JS'
+// end !isIon
+const subtitleText =
+  // if isIon
+  'Vite + Mithril + Ionic'
+  // else isIon
+  'Vite + Mithril'
+  // end isIon
+const cardTextPrefix = 'The page ID is '
+const navigateHome = () => m.route.set('/home')
+
+const renderLogos = () => 
+  // if isJSX
+  (
+  <div>
+    {logos.map(({ href, src, className, alt }) => (
+      <a key={href} href={href} target="_blank">
+        <img src={src} class={className} alt={alt} />
+      </a>
+    ))}
+  </div>
+  )
+  // else isJSX
+  m(
+    'div',
+    logos.map(({ href, src, className, alt }) =>
+      m('a', { href, target: '_blank' }, [m('img', { src, class: className, alt })]),
+    ),
+  )
+  // end isJSX
+
+
+
+const renderCard = (id /*@ts : string | undefined */) =>
+  // if isJSX  
+  (
+  <div class="card">
+    <p>{`${cardTextPrefix}${id ?? ''}`}</p>
+  </div>
+  )
+  // else isJSX
+  m('div', { class: 'card' }, [m('p', `${cardTextPrefix}${id ?? ''}`)])
+  // end isJSX
+
+const renderFooter = () => 
+  // if isJSX
+  (
+  // if isIon
+  <ion-button fill="outline" onclick={navigateHome} class={`${style.footer} clickable`}>
+    Home Page
+  </ion-button>
+  // else isIon
+  <p onclick={navigateHome} class={`${style.footer} clickable`}>
+    Home Page
+  </p>
+  // end isIon
+  )
+  // else isJSX
+  // if isIon
+  m(
+    'ion-button',
+    {
+      fill: 'outline',
+      onclick: navigateHome,
+      class: `${style.footer} clickable`,
+    },
+    'Home Page',
+  )
+  // else isIon
+  m('p', { onclick: navigateHome, class: `${style.footer} clickable` }, 'Home Page')
+  // end isIon
+  // end isJSX
+
+const renderContent = (id /*@ts : string */) => 
+  // if isIon
+  // if isJSX
+  (
+  <>
+    <PageHeader />
+    <ion-content fullscreen="true" class="ion-padding">
+      {renderLogos()}
+      <h2>{subtitleText}</h2>
+      {renderCard(id)}
+      {renderFooter()}
+    </ion-content>
+  </>
+  )
+  // else isJSX
+  m('', [
+    m(PageHeader),
+    m('ion-content', { fullscreen: true, class: 'ion-padding' }, [
+      renderLogos(),
+      m('h2', subtitleText),
+      renderCard(id),
+      renderFooter(),
+    ]),
+  ])
+  // end isJSX
+
+  // else isIon
+  // if isJSX
+  (
+  <>
+    <h1>{titleText}</h1>
+    <h2>{subtitleText}</h2>
+    {renderLogos()}
+    {renderCard(id)}
+    {renderFooter()}
+  </>
+  )
+  // else isJSX
+  m('', [m('h1', titleText), m('h2', subtitleText), renderLogos(), renderCard(id), renderFooter()])
+  // end isJSX
+  // end isIon
+
+export default function Vitriol() {
+  return {
+    view: ({ attrs } /*@ts : m.Vnode<VitriolAttrs> */) =>  renderContent(attrs.id)
+  }
+}

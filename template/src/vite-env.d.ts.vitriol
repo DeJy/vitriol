@@ -1,0 +1,3 @@
+// if isTs
+/// <reference types="vite/client" />
+// end isTs
