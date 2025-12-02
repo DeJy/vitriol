@@ -4,7 +4,7 @@ This guide walks through everything you need to hack on Vitriol itself—from un
 
 ## 1. Prerequisites
 
-- Node.js 18+ and npm 9+
+- Node.js 20.19+ and npm 10.8.2+
 - Git and a GitHub account
 - VS Code (recommended) with the ability to install VSIX packages
 - Familiarity with Mithril, Vite, and basic TypeScript
