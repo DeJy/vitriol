@@ -1,6 +1,6 @@
 # Vitriol Developer Tutorial
 
-This guide walks through everything you need to hack on Vitriol itself—from understanding the template pipeline to publishing syntax updates and contributing fixes.
+This guide walks through everything you need to hack on Vitriol itself; from understanding the template pipeline to publishing syntax updates and contributing fixes.
 
 ## 1. Prerequisites
 
@@ -48,6 +48,22 @@ This guide walks through everything you need to hack on Vitriol itself—from un
 - File names may include dynamic suffixes like `[view]`; `src/index.js` resolves the final extension based on selected language/project type.
 - Conditional sections use `// if condition ... // else condition ... // end condition` and run through `evaluateConditionalBlocks`.
 - TypeScript-only snippets belong in `/*@ts ... */` blocks so JS projects stay lean.
+
+### Template Variables (`§{...}`)
+
+- Any occurrence of `§{variableName}` inside a `.vitriol` file is replaced at scaffold time via `replaceVariablesInContent` (see `src/index.js`).
+- A few core variables are always available:
+   - `projectName`: Folder name chosen by the user.
+   - `packageName`: Either the prompt answer or the sanitized project name.
+   - `projectType`: `'standard'` or `'jsx'`.
+   - `language`: `'javascript'` or `'typescript'`.
+   - `isIon`, `isTs`, `isJs`, `isJSX`, `isStd`: Boolean flags mirroring the selections.
+   - `ext`: Convenience extension (`js`, `ts`, `jsx`, `tsx`) computed from `language` + `projectType`.
+- Use these tokens to personalize README copy, package metadata, or inline comments without duplicating files. For example:
+   ```md
+   # Welcome to §{projectName}
+   ```
+- If you need a new variable, add it to the `variables` object inside `init()` before calling `processTemplatedFiles`, then document it here so other contributors can reuse it.
 
 ## 4. Template & Tutorial Workflow
 
@@ -102,12 +118,11 @@ To get `.vitriol` highlighting while developing:
    - Include CLI version (`npm create vitriol@x.y.z -- --version` or `package.json`).
 2. **Pull Requests**:
    - Create a feature branch (`git checkout -b feat/my-change`).
-   - Ensure `npm run lint` (if added), `npm run test`, `npm run integration`, and `npm run build` succeed.
-   - Describe template impacts (e.g., “affects JSX + Ionic TS only”) and mention any new files in `template/tutorials`.
+   - Ensure `npm run test`, `npm run integration`, and `npm run build` succeed.
+   - Describe template impacts (e.g., “affects JSX + Ionic TS only”).
    - Attach screenshots/gifs if you touched the syntax package.
 3. **Code Style**:
    - Prefer `.vitriol` templates over duplicating files per variant.
-   - Keep added comments succinct and use ASCII unless a file already contains Unicode.
 
 ## 9. Getting Help
 
